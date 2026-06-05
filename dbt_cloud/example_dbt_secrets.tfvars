@@ -1,4 +1,4 @@
-# dbt Cloud account
+# dbt platform account
 dbt_account_id = 12345
 dbt_host_url   = "https://cloud.getdbt.com/api"
 # export DBT_CLOUD_TOKEN="your-token"  ← set token via env var, never in this file
@@ -22,9 +22,9 @@ github_installation_id = 123456
 
 # ---------------------------------------------------------------------------
 # BigQuery connection & credentials
-# connection_id:    from dbt Cloud → Project Settings → Connection
+# connection_id:    from dbt platform → Project Settings → Connection
 # bigquery_dataset: deployment credential target dataset created under this project
-# Leave bigquery_dataset commented out to skip — configure credentials in dbt Cloud later
+# Leave bigquery_dataset commented out to skip — configure credentials in dbt platform later
 # ---------------------------------------------------------------------------
 connection_id    = 222222
 bigquery_dataset = "your_target_dataset"
