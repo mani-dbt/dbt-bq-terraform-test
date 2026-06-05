@@ -212,7 +212,7 @@ resource "dbtcloud_job" "dev_integration_merge" {
     schedule             = false
   }
 
-  deferring_environment_id = dbtcloud_environment.prod.environment_id
+  deferring_environment_id = dbtcloud_environment.dev_integration.environment_id
   generate_docs            = false
 }
 
@@ -317,4 +317,26 @@ resource "dbtcloud_job" "prod_deploy" {
 
   generate_docs        = true
   run_generate_sources = true
+}
+
+# dbt Compile — manual; produces the production manifest that PROD CI defers against
+resource "dbtcloud_job" "prod_compile" {
+  project_id     = local.project_id
+  environment_id = dbtcloud_environment.prod.environment_id
+  name           = "PROD - Compile Job"
+  description    = "Compiles the dbt project to validate SQL without executing any models"
+
+  execute_steps = ["dbt compile"]
+
+  triggers = {
+    github_webhook       = false
+    git_provider_webhook = false
+    on_merge             = false
+    schedule             = false
+  }
+
+  # Compile does not build models, so SAO is not applicable
+  force_node_selection = true
+
+  generate_docs = false
 }
