@@ -12,21 +12,26 @@ Provisions a dbt platform project with environments, jobs, and a BigQuery deploy
 | Repository | GitHub via GitHub App |
 | Environments | 5 — `1_DEVELOPMENT` (development), `2_BUILD` (deployment), `3_QA` (`staging`), `4_PROD_CI` (deployment), `5_PROD` (`production`) |
 | BigQuery Credential | Dataset-scoped, linked to the project (skipped if `bigquery_dataset` is null) |
-| Jobs | 7 — see below |
+| Jobs | 8 — see below |
 
 ### Jobs
 
 | Environment | Job | Type | Trigger |
 |---|---|---|---|
-| `2_BUILD` | BUILD - Slim CI Job | `ci` | Pull request (self-deferring) |
+| `2_BUILD` | BUILD - Slim CI Job | `ci` | Pull request (defers to `2_BUILD`) |
 | `2_BUILD` | BUILD - Compile Job | run | Manual |
-| `2_BUILD` | BUILD - Merge Job | `merge` | On merge to `integration` (defers to PROD) |
+| `2_BUILD` | BUILD - Merge Job | `merge` | On merge to `integration` (defers to `2_BUILD`) |
 | `2_BUILD` | BUILD - Deploy Job | run | Manual |
 | `3_QA` | QA - Deploy | run | Manual |
-| `4_PROD_CI` | Prod - Slim CI Job | `ci` | Pull request to `main` (defers to PROD) |
+| `4_PROD_CI` | PROD - Slim CI Job | `ci` | Pull request to `main` (defers to `5_PROD`) |
+| `5_PROD` | PROD - Compile Job | run | Manual (produces the manifest PROD CI defers against) |
 | `5_PROD` | PROD - Deploy Job | run | Manual |
 
 Branch strategy: `1_DEVELOPMENT`, `2_BUILD`, and `3_QA` build from the `integration` branch; `4_PROD_CI` and `5_PROD` build from `main`.
+
+### State-aware orchestration (SAO)
+
+SAO is only permitted on `staging` or `production` environments, and a dbt project allows only **one** of each type. `3_QA` holds the `staging` slot and `5_PROD` holds the `production` slot, so SAO is enabled on **QA - Deploy** and **PROD - Deploy Job**. All other jobs — including those on the `2_BUILD` (General) environment — run with `force_node_selection = true` (SAO disabled).
 
 ---
 
