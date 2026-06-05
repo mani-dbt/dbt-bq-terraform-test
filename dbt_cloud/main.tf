@@ -167,10 +167,10 @@ resource "dbtcloud_job" "dev_integration_slim_ci" {
     schedule             = false
   }
 
-  self_deferring         = true
-  compare_changes_flags  = true
-  errors_on_lint_failure = true
-  generate_docs          = false
+  deferring_environment_id = dbtcloud_environment.dev_integration.environment_id
+  compare_changes_flags    = true
+  errors_on_lint_failure   = true
+  generate_docs            = false
 }
 
 # dbt Compile — manual; validates SQL compilation without executing
@@ -188,6 +188,9 @@ resource "dbtcloud_job" "dev_integration_compile" {
     on_merge             = false
     schedule             = false
   }
+
+  # SAO requires a staging/production environment; BUILD is neither, so disable it
+  force_node_selection = true
 
   generate_docs = false
 }
@@ -209,7 +212,7 @@ resource "dbtcloud_job" "dev_integration_merge" {
     schedule             = false
   }
 
-  deferring_environment_id = dbtcloud_environment.prod.environment_id
+  deferring_environment_id = dbtcloud_environment.dev_integration.environment_id
   generate_docs            = false
 }
 
@@ -228,6 +231,9 @@ resource "dbtcloud_job" "dev_integration_deploy" {
     on_merge             = false
     schedule             = !var.deactivate_jobs_schedule
   }
+
+  # SAO requires a staging/production environment; BUILD is neither, so disable it
+  force_node_selection = true
 
   generate_docs = true
 }
@@ -252,6 +258,8 @@ resource "dbtcloud_job" "qa_deploy" {
     schedule             = !var.deactivate_jobs_schedule
   }
 
+  cost_optimization_features = ["state_aware_orchestration"]
+
   generate_docs = true
 }
 
@@ -263,7 +271,7 @@ resource "dbtcloud_job" "qa_deploy" {
 resource "dbtcloud_job" "prod_ci_slim_ci" {
   project_id     = local.project_id
   environment_id = dbtcloud_environment.prod_ci.environment_id
-  name           = "Prod - Slim CI Job"
+  name           = "PROD - Slim CI Job"
   description    = "Slim CI on pull requests to main — validates modified models against production state"
 
   job_type = "ci"
@@ -305,6 +313,30 @@ resource "dbtcloud_job" "prod_deploy" {
     schedule             = !var.deactivate_jobs_schedule
   }
 
+  cost_optimization_features = ["state_aware_orchestration"]
+
   generate_docs        = true
   run_generate_sources = true
+}
+
+# dbt Compile — manual; produces the production manifest that PROD CI defers against
+resource "dbtcloud_job" "prod_compile" {
+  project_id     = local.project_id
+  environment_id = dbtcloud_environment.prod.environment_id
+  name           = "PROD - Compile Job"
+  description    = "Compiles the dbt project to validate SQL without executing any models"
+
+  execute_steps = ["dbt compile"]
+
+  triggers = {
+    github_webhook       = false
+    git_provider_webhook = false
+    on_merge             = false
+    schedule             = false
+  }
+
+  # Compile does not build models, so SAO is not applicable
+  force_node_selection = true
+
+  generate_docs = false
 }
