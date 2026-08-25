@@ -89,7 +89,7 @@ locals {
 }
 
 resource "dbtcloud_global_connection" "dev_build" {
-  name = "DEV & BUILD - BigQuery"
+  name = "DEV - BigQuery"
   bigquery = merge(local.bigquery_sa_placeholder, {
     gcp_project_id           = var.gcp_project_id_dev_build
     application_id           = var.oauth_client_id_dev_build
@@ -111,7 +111,7 @@ resource "dbtcloud_global_connection" "qa" {
 }
 
 resource "dbtcloud_global_connection" "prod" {
-  name = "PROD_CI & PROD - BigQuery"
+  name = "PROD - BigQuery"
   bigquery = merge(local.bigquery_sa_placeholder, {
     gcp_project_id           = var.gcp_project_id_prod
     application_id           = var.oauth_client_id_prod
