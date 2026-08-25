@@ -31,6 +31,12 @@ variable "dbt_project_name" {
   default     = null
 }
 
+variable "dbt_project_description" {
+  description = "Description for the new dbt platform project (shown in dbt Explorer). Only applies when creating a new project (project_id is null) — ignored when adopting an existing project via project_id."
+  type        = string
+  default     = null
+}
+
 # ---------------------------------------------------------------------------
 # GitHub
 # ---------------------------------------------------------------------------
@@ -164,6 +170,10 @@ variable "build_dataset" {
     condition     = var.build_dataset == null || !startswith(var.build_dataset, "TODO")
     error_message = "build_dataset is still a TODO placeholder — set the real dataset name or leave it null."
   }
+  validation {
+    condition     = var.build_dataset == null || can(regex("^[A-Za-z0-9_]+$", var.build_dataset))
+    error_message = "build_dataset must only contain letters, numbers, and underscores — BigQuery dataset names don't allow hyphens."
+  }
 }
 
 variable "qa_dataset" {
@@ -173,6 +183,10 @@ variable "qa_dataset" {
   validation {
     condition     = var.qa_dataset == null || !startswith(var.qa_dataset, "TODO")
     error_message = "qa_dataset is still a TODO placeholder — set the real dataset name or leave it null."
+  }
+  validation {
+    condition     = var.qa_dataset == null || can(regex("^[A-Za-z0-9_]+$", var.qa_dataset))
+    error_message = "qa_dataset must only contain letters, numbers, and underscores — BigQuery dataset names don't allow hyphens."
   }
 }
 
@@ -184,6 +198,10 @@ variable "prod_ci_dataset" {
     condition     = var.prod_ci_dataset == null || !startswith(var.prod_ci_dataset, "TODO")
     error_message = "prod_ci_dataset is still a TODO placeholder — set the real dataset name or leave it null."
   }
+  validation {
+    condition     = var.prod_ci_dataset == null || can(regex("^[A-Za-z0-9_]+$", var.prod_ci_dataset))
+    error_message = "prod_ci_dataset must only contain letters, numbers, and underscores — BigQuery dataset names don't allow hyphens."
+  }
 }
 
 variable "prod_dataset" {
@@ -193,6 +211,10 @@ variable "prod_dataset" {
   validation {
     condition     = var.prod_dataset == null || !startswith(var.prod_dataset, "TODO")
     error_message = "prod_dataset is still a TODO placeholder — set the real dataset name or leave it null."
+  }
+  validation {
+    condition     = var.prod_dataset == null || can(regex("^[A-Za-z0-9_]+$", var.prod_dataset))
+    error_message = "prod_dataset must only contain letters, numbers, and underscores — BigQuery dataset names don't allow hyphens."
   }
 }
 

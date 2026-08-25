@@ -11,7 +11,8 @@ dbt_host_url   = "https://cloud.getdbt.com/api"
 project_id = 123456
 
 # Option B: create a new project
-#dbt_project_name = "test-project"
+#dbt_project_name        = "test-project"
+#dbt_project_description = "What this project is for"
 
 # ---------------------------------------------------------------------------
 # GitHub

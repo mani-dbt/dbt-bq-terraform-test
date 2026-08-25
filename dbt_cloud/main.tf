@@ -23,8 +23,9 @@ provider "dbtcloud" {
 # ---------------------------------------------------------------------------
 
 resource "dbtcloud_project" "dbt_project" {
-  count = var.project_id == null ? 1 : 0
-  name  = var.dbt_project_name
+  count       = var.project_id == null ? 1 : 0
+  name        = var.dbt_project_name
+  description = var.dbt_project_description
 
   lifecycle {
     precondition {
@@ -357,7 +358,11 @@ resource "dbtcloud_job" "qa_deploy" {
     schedule             = !var.deactivate_jobs_schedule
   }
 
-  cost_optimization_features = ["state_aware_orchestration"]
+  # SAO disabled for now — re-enable cost_optimization_features when dbt State is turned on.
+  # cost_optimization_features is set explicitly (not omitted) so Terraform keeps managing
+  # it instead of leaving it computed, which is what caused the drift in the past.
+  cost_optimization_features = []
+  force_node_selection       = true
 
   generate_docs = true
 }
@@ -412,7 +417,11 @@ resource "dbtcloud_job" "prod_deploy" {
     schedule             = !var.deactivate_jobs_schedule
   }
 
-  cost_optimization_features = ["state_aware_orchestration"]
+  # SAO disabled for now — re-enable cost_optimization_features when dbt State is turned on.
+  # cost_optimization_features is set explicitly (not omitted) so Terraform keeps managing
+  # it instead of leaving it computed, which is what caused the drift in the past.
+  cost_optimization_features = []
+  force_node_selection       = true
 
   generate_docs        = true
   run_generate_sources = true
