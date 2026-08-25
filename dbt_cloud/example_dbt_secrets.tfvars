@@ -21,13 +21,31 @@ github_repo_remote_url = "git://github.com/your-org/your-repo.git"
 github_installation_id = 123456
 
 # ---------------------------------------------------------------------------
-# BigQuery connection & credentials
-# connection_id:    from dbt platform → Project Settings → Connection
-# bigquery_dataset: deployment credential target dataset created under this project
-# Leave bigquery_dataset commented out to skip — configure credentials in dbt platform later
+# BigQuery connections
+# 3 connections are created: dev_build, qa, prod. Each needs a GCP project ID
+# and an OAuth 2.0 Client ID/Secret (see docs.getdbt.com/docs/cloud/manage-access/set-up-bigquery-oauth
+# for how to create the OAuth app in GCP). Deployment environments use the
+# OAuth app for Workload Identity Federation; 1_DEVELOPMENT uses it for
+# Native OAuth (each developer connects their own identity in the UI).
 # ---------------------------------------------------------------------------
-connection_id    = 222222
-bigquery_dataset = "your_target_dataset"
+gcp_project_id_dev_build      = "your-gcp-project-id"
+oauth_client_id_dev_build     = "your-oauth-client-id.apps.googleusercontent.com"
+oauth_client_secret_dev_build = "your-oauth-client-secret"
+
+gcp_project_id_qa      = "your-gcp-project-id"
+oauth_client_id_qa     = "your-oauth-client-id.apps.googleusercontent.com"
+oauth_client_secret_qa = "your-oauth-client-secret"
+
+gcp_project_id_prod      = "your-gcp-project-id"
+oauth_client_id_prod     = "your-oauth-client-id.apps.googleusercontent.com"
+oauth_client_secret_prod = "your-oauth-client-secret"
+
+# BigQuery deployment credentials — dataset per deployment environment
+# Leave commented out to skip — configure credentials in dbt platform later
+build_dataset   = "your_build_dataset"
+qa_dataset      = "your_qa_dataset"
+prod_ci_dataset = "your_prod_ci_dataset"
+prod_dataset    = "your_prod_dataset"
 
 # ---------------------------------------------------------------------------
 # Job trigger toggles (optional)
